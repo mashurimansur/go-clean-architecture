@@ -2,7 +2,10 @@ package service
 
 import (
 	"clean-arch-go/entity"
+	"clean-arch-go/model"
 	"clean-arch-go/repository"
+
+	validation "github.com/go-ozzo/ozzo-validation"
 )
 
 type userServiceImpl struct {
@@ -20,10 +23,19 @@ func (service *userServiceImpl) List() (response []entity.User, err error) {
 
 }
 
-func (service *userServiceImpl) Create(request entity.User) (err error) {
-	// validation.Validate(request)
+func (service *userServiceImpl) Create(request model.UserRequest) error {
+	errValidation := validation.Validate(request)
+	if errValidation != nil {
+		return errValidation
+	}
 
-	err = service.UserRepository.Create(request)
+	user := entity.User{
+		Name:  request.Name,
+		Email: request.Email,
+		Age:   request.Age,
+	}
 
-	return
+	errCreate := service.UserRepository.Create(user)
+
+	return errCreate
 }
