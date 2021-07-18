@@ -8,6 +8,7 @@ import (
 	"clean-arch-go/service"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 )
 
@@ -15,6 +16,11 @@ func main() {
 	//setup configuration
 	configuration := config.New()
 	database := config.NewPostgreConnection(configuration)
+
+	//close DB
+	sqlDB, errDB := database.DB()
+	exception.PanicIfNeeded(errDB)
+	defer sqlDB.Close()
 
 	//setup repository
 	userRepository := repository.NewUserRepository(database)
@@ -28,6 +34,7 @@ func main() {
 	// setup fiber
 	app := fiber.New(config.NewFiberConfig())
 	app.Use(recover.New())
+	app.Use(logger.New())
 
 	//setup routing
 	userController.Route(app)
@@ -35,5 +42,4 @@ func main() {
 	//start app
 	err := app.Listen(":8000")
 	exception.PanicIfNeeded(err)
-
 }

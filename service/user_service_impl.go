@@ -16,8 +16,21 @@ func NewUserService(userRepository *repository.UserRepository) UserService {
 	return &userServiceImpl{UserRepository: *userRepository}
 }
 
-func (service *userServiceImpl) List() (response []entity.User, err error) {
-	response, err = service.List()
+func (service *userServiceImpl) List() (response []model.UserResponse, err error) {
+	users, err := service.UserRepository.List()
+
+	for _, v := range users {
+		res := model.UserResponse{
+			ID:        v.ID,
+			Name:      v.Name,
+			Email:     v.Email,
+			Age:       v.Age,
+			CreatedAt: v.CreatedAt,
+			UpdatedAt: v.UpdatedAt,
+		}
+
+		response = append(response, res)
+	}
 
 	return
 
