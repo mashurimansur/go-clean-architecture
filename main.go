@@ -1,49 +1,39 @@
 package main
 
 import (
-	"fmt"
+	"clean-arch-go/config"
+	"clean-arch-go/controller"
+	"clean-arch-go/exception"
+	"clean-arch-go/repository"
+	"clean-arch-go/service"
 
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 )
 
-type Product struct {
-	gorm.Model
-	Code  string
-	Price uint
-}
-
 func main() {
-	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
-	if err != nil {
-		panic("failed to connect database")
-	}
+	//setup configuration
+	configuration := config.New()
+	database := config.NewPostgreConnection(configuration)
 
-	// Migrate the schema
-	db.AutoMigrate(&Product{})
+	//setup repository
+	userRepository := repository.NewUserRepository(database)
 
-	// Create
-	db.Create(&Product{Code: "D42", Price: 100})
-	db.Create(&Product{Code: "D43", Price: 100})
-	db.Create(&Product{Code: "D44", Price: 100})
-	db.Create(&Product{Code: "D45", Price: 100})
-	db.Create(&Product{Code: "D46", Price: 100})
-	db.Create(&Product{Code: "D47", Price: 100})
-	db.Create(&Product{Code: "D48", Price: 100})
+	//setup service
+	userService := service.NewUserService(&userRepository)
 
-	// Read
-	var product []Product
-	db.Find(&product, 1)                 // find product with integer primary key
-	db.Find(&product, "code = ?", "D42") // find product with code D42
+	// setup controller
+	userController := controller.NewUserController(&userService)
 
-	fmt.Println(product)
+	// setup fiber
+	app := fiber.New(config.NewFiberConfig())
+	app.Use(recover.New())
 
-	// // Update - update product's price to 200
-	// db.Model(&product).Update("Price", 200)
-	// // Update - update multiple fields
-	// db.Model(&product).Updates(Product{Price: 200, Code: "F42"}) // non-zero fields
-	// db.Model(&product).Updates(map[string]interface{}{"Price": 200, "Code": "F42"})
+	//setup routing
+	userController.Route(app)
 
-	// // Delete - delete product
-	// db.Delete(&product, 1)
+	//start app
+	err := app.Listen(":8000")
+	exception.PanicIfNeeded(err)
+
 }

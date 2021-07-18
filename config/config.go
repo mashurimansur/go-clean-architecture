@@ -17,7 +17,7 @@ func (config *configImpl) Get(key string) string {
 	return os.Getenv(key)
 }
 
-func new(filenames ...string) Config {
+func New(filenames ...string) Config {
 	err := godotenv.Load(filenames...)
 	if err != nil {
 		panic(err)
