@@ -36,7 +36,7 @@ func NewPostgreConnection(config Config) *gorm.DB {
 }
 
 func NewSQLiteConnection() *gorm.DB {
-	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("./test.db"), &gorm.Config{})
 	exception.PanicIfNeeded(err)
 
 	return db
