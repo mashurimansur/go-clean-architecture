@@ -3,6 +3,7 @@ package main
 import (
 	"clean-arch-go/config"
 	"clean-arch-go/controller"
+	"clean-arch-go/entity"
 	"clean-arch-go/exception"
 	"clean-arch-go/repository"
 	"clean-arch-go/service"
@@ -10,6 +11,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	"gorm.io/gorm"
 )
 
 func main() {
@@ -21,6 +23,8 @@ func main() {
 	sqlDB, errDB := database.DB()
 	exception.PanicIfNeeded(errDB)
 	defer sqlDB.Close()
+
+	database.AutoMigrate(&entity.User{})
 
 	//setup repository
 	userRepository := repository.NewUserRepository(database)
@@ -42,4 +46,8 @@ func main() {
 	//start app
 	err := app.Listen(":8000")
 	exception.PanicIfNeeded(err)
+}
+
+func MigrateTable(db *gorm.DB) {
+	db.AutoMigrate(&entity.User{})
 }
