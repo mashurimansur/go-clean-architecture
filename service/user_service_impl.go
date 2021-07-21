@@ -4,8 +4,6 @@ import (
 	"clean-arch-go/entity"
 	"clean-arch-go/model"
 	"clean-arch-go/repository"
-
-	validation "github.com/go-ozzo/ozzo-validation"
 )
 
 type userServiceImpl struct {
@@ -37,10 +35,10 @@ func (service *userServiceImpl) List() (response []model.UserResponse, err error
 }
 
 func (service *userServiceImpl) Create(request model.UserRequest) error {
-	errValidation := validation.Validate(request)
-	if errValidation != nil {
-		return errValidation
-	}
+	// errValidation := validation.Validate(request)
+	// if errValidation != nil {
+	// 	return errValidation
+	// }
 
 	user := entity.User{
 		Name:  request.Name,

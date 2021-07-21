@@ -3,6 +3,7 @@ package controller
 import (
 	"bytes"
 	"clean-arch-go/config"
+	"clean-arch-go/entity"
 	"clean-arch-go/model"
 	"clean-arch-go/repository"
 	"clean-arch-go/service"
@@ -49,6 +50,7 @@ func TestUserControllerList(t *testing.T) {
 }
 
 func TestUserControllerCreate(t *testing.T) {
+	database.AutoMigrate(&entity.User{})
 	userRequest := model.UserRequest{
 		Name:  "Test",
 		Email: "test@mail.com",
